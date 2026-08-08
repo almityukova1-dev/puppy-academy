@@ -1364,7 +1364,13 @@ iOS:
     // set Loc.lang to match what's actually in that build (see the comment
     // there) -- without it an EN build would still default to Russian
     // internally and try to play intro clips that were excluded from it.
-    var GAME_BASE = "https://pub-b3c8795c263a41fe9666019beb91cf55.r2.dev/";
+    // Same-origin path (proxied through a Cloudflare Worker bound directly
+    // to the R2 bucket, see cloudflare-counter/game-proxy-worker.js)
+    // instead of the r2.dev cross-origin URL -- iOS Safari partitions/
+    // blocks IndexedDB (what Godot's web export uses for save persistence)
+    // for cross-origin iframe content, which was silently breaking saves
+    // on iPhone. Serving from puppysacademy.com/play/ makes it same-origin.
+    var GAME_BASE = "https://puppysacademy.com/play/";
     var gameScreen = document.getElementById("game-screen");
     var playTrigger = document.getElementById("game-play-trigger");
     var fsBtn = document.getElementById("game-fullscreen-btn");
