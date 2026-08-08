@@ -340,9 +340,11 @@ p { margin: 0; }
   position: relative;
   aspect-ratio: 16 / 9;
   border-radius: calc(var(--radius-lg) - 10px);
-  background:
-    repeating-linear-gradient(135deg, var(--mint-pale) 0 2px, transparent 2px 26px),
-    var(--cream-deep);
+  background-image:
+    linear-gradient(rgba(251, 243, 226, 0.6), rgba(251, 243, 226, 0.72)),
+    url('assets/game_preview_bg.jpg');
+  background-size: cover;
+  background-position: center;
   display: flex;
   align-items: center;
   justify-content: center;
