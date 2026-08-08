@@ -439,9 +439,15 @@ p { margin: 0; }
   border: 0;
 }
 .game-fullscreen-btn {
+  /* Top-center, not a corner -- all four corners already have in-game UI
+     (help icon top-left, settings gear top-right, book bottom-left, a
+     right-edge action toolbar ending bottom-right where the pad/walk
+     button sits). This reuses the language picker's spot, which is
+     already hidden by the time this button shows (both happen on Play). */
   position: absolute;
-  right: 10px;
-  bottom: 10px;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
   width: 40px;
   height: 40px;
   border-radius: 10px;
@@ -642,11 +648,48 @@ footer {
   line-height: 1.7;
 }
 
+.bug-form-wrap { position: relative; max-width: 48ch; }
 .bug-form {
   display: flex;
   flex-direction: column;
   gap: 20px;
   max-width: 48ch;
+}
+.form-success-overlay {
+  display: none;
+  position: absolute;
+  inset: 0;
+  background: var(--cream);
+  border-radius: var(--radius-lg);
+  z-index: 2;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+  gap: 1.1rem;
+}
+.form-success-overlay.visible { display: flex; }
+.form-success-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--mint);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.form-success-icon svg { width: 30px; height: 30px; color: var(--cream); }
+.form-success-label {
+  font-size: 0.9rem;
+  color: var(--forest-soft);
+  max-width: 32ch;
+}
+.form-success-title {
+  font-family: 'Marmelad', sans-serif;
+  font-size: 1.7rem;
+  font-weight: 400;
+  color: var(--forest);
 }
 .bug-field {
   display: flex;
@@ -950,22 +993,29 @@ footer {
         <span class="eyebrow" data-i18n="report_bug_eyebrow">Нашли баг?</span>
         <h2 data-i18n="report_bug_title">Сообщить об ошибке</h2>
       </div>
-      <form class="bug-form" id="bug-form">
-        <label class="bug-field">
-          <span data-i18n="bug_form_email_label">Ваш email (для ответа)</span>
-          <input type="email" name="email" required data-i18n-placeholder="bug_form_email_placeholder" placeholder="name@example.com">
-        </label>
-        <label class="bug-field">
-          <span data-i18n="bug_form_message_label">Опишите ошибку</span>
-          <textarea name="message" rows="6" required data-i18n-placeholder="bug_form_message_placeholder" placeholder="Что произошло, что вы делали до этого..."></textarea>
-        </label>
-        <label class="bug-field">
-          <span data-i18n="bug_form_file_label">Прикрепить файл (скриншот, видео)</span>
-          <input type="file" name="attachment">
-        </label>
-        <button type="submit" class="bug-submit" data-i18n="bug_form_submit">Отправить</button>
-        <p class="bug-form-note" id="bug-form-note" data-i18n="bug_form_note">Форма пока не подключена к почте — эта часть появится позже.</p>
-      </form>
+      <div class="bug-form-wrap" id="bug-form-wrap">
+        <div class="form-success-overlay" id="bug-form-success">
+          <div class="form-success-icon"><svg><use href="#icon-paw"></use></svg></div>
+          <p class="form-success-label" data-i18n="bug_form_ok_msg">Сообщение отправлено! Мы ответим в течение 24 часов.</p>
+          <p class="form-success-title" data-i18n="bug_form_ok_title">До скорого!</p>
+        </div>
+        <form class="bug-form" id="bug-form" action="https://formspree.io/f/YOUR_FORM_ID" method="POST" novalidate>
+          <label class="bug-field">
+            <span data-i18n="bug_form_email_label">Ваш email (для ответа)</span>
+            <input type="email" name="email" required data-i18n-placeholder="bug_form_email_placeholder" placeholder="name@example.com">
+          </label>
+          <label class="bug-field">
+            <span data-i18n="bug_form_message_label">Опишите ошибку</span>
+            <textarea name="message" rows="6" required data-i18n-placeholder="bug_form_message_placeholder" placeholder="Что произошло, что вы делали до этого..."></textarea>
+          </label>
+          <label class="bug-field">
+            <span data-i18n="bug_form_file_label">Прикрепить файл (скриншот, видео)</span>
+            <input type="file" name="attachment">
+          </label>
+          <button type="submit" class="bug-submit" id="bug-submit-btn" data-i18n="bug_form_submit">Отправить</button>
+          <p class="bug-form-note" id="bug-form-note"></p>
+        </form>
+      </div>
     </div>
   </section>
 
@@ -1084,7 +1134,8 @@ iOS:
       bug_form_message_placeholder: "Что произошло, что вы делали до этого...",
       bug_form_file_label: "Прикрепить файл (скриншот, видео)",
       bug_form_submit: "Отправить",
-      bug_form_note: "Форма пока не подключена к почте — эта часть появится позже.",
+      bug_form_ok_msg: "Сообщение отправлено! Мы ответим в течение 24 часов.",
+      bug_form_ok_title: "До скорого!",
 
       download_title: "Скачать",
       download_eyebrow: "Игра на вашем устройстве",
@@ -1147,7 +1198,8 @@ iOS:
       bug_form_message_placeholder: "What happened, what were you doing beforehand...",
       bug_form_file_label: "Attach a file (screenshot, video)",
       bug_form_submit: "Send",
-      bug_form_note: "The form isn't connected to email yet — that part is coming later.",
+      bug_form_ok_msg: "Message sent! We'll reply within 24 hours.",
+      bug_form_ok_title: "See you soon!",
 
       download_title: "Download",
       download_eyebrow: "The game on your device",
@@ -1203,16 +1255,66 @@ iOS:
     var saved = localStorage.getItem(STORAGE_KEY);
     applyLang(saved === "en" ? "en" : "ru");
 
-    // Bug-report form has no backend yet (see bug_form_note) -- block the
-    // actual submit so it doesn't just reload/lose the visitor's text, and
-    // draw attention to the note explaining why instead.
+    // Bug-report form -- posts to Formspree (same pattern as
+    // aleksmitiukova.com's contact form). FormData + no explicit
+    // Content-Type header is deliberate: the browser sets the correct
+    // multipart boundary itself, which is what lets the file attachment
+    // field go through -- setting Content-Type manually breaks that.
     var bugForm = document.getElementById("bug-form");
     var bugNote = document.getElementById("bug-form-note");
-    if (bugForm && bugNote) {
+    var bugSubmitBtn = document.getElementById("bug-submit-btn");
+    var bugSuccess = document.getElementById("bug-form-success");
+    var bugFormWrap = document.getElementById("bug-form-wrap");
+    if (bugForm && bugNote && bugSubmitBtn) {
+      var bugSubmitLabel = bugSubmitBtn.querySelector("span") || bugSubmitBtn;
+      var bugSubmitLabelDefault = bugSubmitLabel.textContent;
       bugForm.addEventListener("submit", function (e) {
         e.preventDefault();
-        bugNote.style.color = "var(--gold)";
-        bugNote.style.fontWeight = "700";
+        var required = bugForm.querySelectorAll("[required]");
+        var valid = true;
+        required.forEach(function (f) { if (!f.value.trim()) valid = false; });
+        if (!valid) {
+          bugNote.style.color = "var(--gold)";
+          bugNote.style.fontWeight = "700";
+          bugNote.textContent = currentLang() === "en"
+            ? "Please fill in all required fields."
+            : "Заполните, пожалуйста, обязательные поля.";
+          return;
+        }
+
+        bugNote.textContent = "";
+        bugSubmitLabel.textContent = currentLang() === "en" ? "Sending…" : "Отправляем…";
+        bugSubmitBtn.disabled = true;
+
+        fetch(bugForm.action, {
+          method: "POST",
+          body: new FormData(bugForm),
+          headers: { Accept: "application/json" },
+        })
+          .then(function (res) {
+            if (res.ok) {
+              bugForm.reset();
+              if (bugSuccess) {
+                bugSuccess.classList.add("visible");
+                if (bugFormWrap) bugFormWrap.style.minHeight = bugFormWrap.offsetHeight + "px";
+                bugForm.style.visibility = "hidden";
+              }
+              return;
+            }
+            return res.json().then(function (json) {
+              var errText = (json.errors || []).map(function (er) { return er.message; }).join(", ");
+              throw new Error(errText || "request failed");
+            });
+          })
+          .catch(function () {
+            bugNote.style.color = "var(--gold)";
+            bugNote.style.fontWeight = "700";
+            bugNote.textContent = currentLang() === "en"
+              ? "Something went wrong. Please email us directly instead."
+              : "Что-то пошло не так. Напишите нам напрямую на почту.";
+            bugSubmitLabel.textContent = bugSubmitLabelDefault;
+            bugSubmitBtn.disabled = false;
+          });
       });
     }
 
