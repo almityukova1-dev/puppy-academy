@@ -421,12 +421,20 @@ p { margin: 0; }
 .game-fullscreen-btn:hover { background: rgba(0, 0, 0, 0.65); }
 .game-fullscreen-btn svg { width: 20px; height: 20px; color: #fff; }
 .game-screen:fullscreen,
-.game-screen:-webkit-full-screen {
+.game-screen:-webkit-full-screen,
+.game-screen.game-fake-fullscreen {
   aspect-ratio: unset;
   width: 100vw;
   height: 100vh;
   border-radius: 0;
   background: #000;
+}
+/* CSS-only fallback fullscreen for browsers with no Fullscreen API for
+   plain elements (iOS Safari) -- see the game-fullscreen-btn JS. */
+.game-screen.game-fake-fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
 }
 
 .hero-note {
@@ -1044,7 +1052,7 @@ iOS:
       page_title: "Puppy Academy — a puppy-raising game",
       page_desc: "Puppy Academy — an idle game about raising a puppy. Coming soon to your browser.",
       brand: "Puppy Academy",
-      hero_h1: "Play right here, in your browser",
+      hero_h1: "A tamagotchi, right here in your browser",
       hero_lede: "Adopt a puppy, take it for walks, and teach it commands right on this page — no install needed.",
       hero_note: "See what's coming next in the Roadmap section below. First launch takes a bit longer than usual — thanks for your patience. Your progress is saved only in this browser, on this device. And pick your language (RU / EN) on the game's title screen before you hit Play.",
       coming_soon_title: "Play",
@@ -1206,13 +1214,34 @@ iOS:
       });
     }
     if (fsBtn && gameScreen) {
+      var FAKE_FS_CLASS = "game-fake-fullscreen";
+      // iOS Safari has no Fullscreen API for plain elements at all (only
+      // <video> gets a special webkitEnterFullscreen escape hatch) -- on
+      // any browser without requestFullscreen/webkitRequestFullscreen, fall
+      // back to a CSS-only "fake fullscreen": fix the game box to cover the
+      // whole viewport instead. Same button exits it either way.
+      var supportsRealFullscreen = !!(
+        gameScreen.requestFullscreen || gameScreen.webkitRequestFullscreen
+      );
+      var exitFakeFullscreen = function () {
+        gameScreen.classList.remove(FAKE_FS_CLASS);
+        document.body.style.overflow = "";
+      };
       fsBtn.addEventListener("click", function () {
         if (document.fullscreenElement || document.webkitFullscreenElement) {
           (document.exitFullscreen || document.webkitExitFullscreen).call(document);
-        } else if (gameScreen.requestFullscreen) {
-          gameScreen.requestFullscreen();
-        } else if (gameScreen.webkitRequestFullscreen) {
-          gameScreen.webkitRequestFullscreen();
+        } else if (gameScreen.classList.contains(FAKE_FS_CLASS)) {
+          exitFakeFullscreen();
+        } else if (supportsRealFullscreen) {
+          (gameScreen.requestFullscreen || gameScreen.webkitRequestFullscreen).call(gameScreen);
+        } else {
+          gameScreen.classList.add(FAKE_FS_CLASS);
+          document.body.style.overflow = "hidden";
+        }
+      });
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape" && gameScreen.classList.contains(FAKE_FS_CLASS)) {
+          exitFakeFullscreen();
         }
       });
     }
