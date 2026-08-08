@@ -1,0 +1,35 @@
+Счётчик игроков на Cloudflare — инструкция по установке
+==========================================================
+
+Шаг 1 — создать Worker
+------------------------
+1. В Cloudflare: Workers & Pages -> Create -> Create Worker
+2. Название любое, например: puppy-academy-counter
+3. Deploy
+4. "Edit code" -> удали весь код, что там есть, и вставь вместо него
+   содержимое файла worker.js (лежит рядом с этой инструкцией)
+5. Save and Deploy
+
+После деплоя у Worker'а появится свой адрес, что-то вроде:
+   https://puppy-academy-counter.ТВОЙ-АККАУНТ.workers.dev
+Он понадобится на шаге 3 — скопируй его.
+
+Шаг 2 — создать хранилище (KV) и подключить к Worker'у
+---------------------------------------------------------
+1. В Cloudflare: Storage & Databases -> KV -> Create a namespace
+2. Название любое, например: puppy_academy_counter
+3. Create
+4. Вернись в свой Worker -> Settings -> Variables and Bindings (или
+   "Bindings") -> Add binding -> KV Namespace
+5. Variable name (имя переменной) — обязательно впиши ровно так:
+       PLAYER_COUNTER
+   (код в worker.js обращается именно к этому имени, если написать
+   по-другому — работать не будет)
+6. KV namespace — выбери тот, что создала в пункте 2
+7. Save / Deploy
+
+Шаг 3 — сказать мне адрес Worker'а
+------------------------------------
+Пришли мне тот адрес из конца шага 1
+(https://puppy-academy-counter....workers.dev) — я подключу его к сайту,
+и счётчик заработает по-настоящему.
