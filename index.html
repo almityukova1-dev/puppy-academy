@@ -1216,31 +1216,37 @@ iOS:
       });
     }
 
-    // Total-players counter -- backed by a small Cloudflare Worker (see
-    // website/cloudflare-counter/) instead of a third-party analytics
-    // service. Counts once per unique browser (guarded by localStorage,
-    // not a real login/account system, so clearing site data or visiting
-    // from a different browser/device counts again) -- every later visit
-    // from the same browser just reads the current total without
-    // incrementing it again. Leaves the placeholder "0" on screen if the
-    // request fails for any reason (offline, Worker down, etc).
+    // Total-PLAYERS counter (not site visitors) -- backed by a small
+    // Cloudflare Worker (see website/cloudflare-counter/) instead of a
+    // third-party analytics service. Page load only ever READS the current
+    // total (GET /count); the increment only fires from inside loadGame()
+    // below, i.e. the first time this browser actually presses Play, not
+    // just for landing on the page. Guarded by localStorage (not a real
+    // login/account system, so clearing site data or a different
+    // browser/device counts again).
     var counterEl = document.getElementById("support-counter-num");
-    if (counterEl) {
-      var COUNTER_WORKER = "https://puppy-academy-counter.almityukova1.workers.dev";
-      var COUNTED_KEY = "puppy_academy_counted_v1";
-      var alreadyCounted = localStorage.getItem(COUNTED_KEY);
-      var endpoint = alreadyCounted ? "/count" : "/increment";
-      var method = alreadyCounted ? "GET" : "POST";
-      fetch(COUNTER_WORKER + endpoint, { method: method })
+    var COUNTER_WORKER = "https://puppy-academy-counter.almityukova1.workers.dev";
+    var COUNTED_KEY = "puppy_academy_counted_v1";
+    var refreshCounterDisplay = function () {
+      if (!counterEl) return;
+      fetch(COUNTER_WORKER + "/count", { method: "GET" })
         .then(function (r) { return r.json(); })
         .then(function (data) {
-          if (typeof data.count === "number") {
-            counterEl.textContent = String(data.count);
-            if (!alreadyCounted) localStorage.setItem(COUNTED_KEY, "1");
-          }
+          if (typeof data.count === "number") counterEl.textContent = String(data.count);
         })
         .catch(function () { /* leave placeholder "0" */ });
-    }
+    };
+    var countThisPlayerIfFirstTime = function () {
+      if (localStorage.getItem(COUNTED_KEY)) return;
+      fetch(COUNTER_WORKER + "/increment", { method: "POST" })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (typeof data.count === "number" && counterEl) counterEl.textContent = String(data.count);
+          localStorage.setItem(COUNTED_KEY, "1");
+        })
+        .catch(function () { /* leave the count as-is */ });
+    };
+    refreshCounterDisplay();
 
     // Playable game embed. Lazy-loaded on click rather than on page load --
     // the exported build is 300+ MB, so nobody should download it just for
@@ -1289,6 +1295,7 @@ iOS:
         playTrigger.replaceWith(iframe);
         if (fsBtn) fsBtn.style.display = "flex";
         if (langPicker) langPicker.classList.add("is-hidden");
+        countThisPlayerIfFirstTime();
       };
       playTrigger.addEventListener("click", loadGame);
       playTrigger.addEventListener("keydown", function (e) {
