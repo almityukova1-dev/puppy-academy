@@ -1,0 +1,7 @@
+# The exported web build lives on Cloudflare R2, not in this repo --
+# index.pck/.wasm alone are 400+ MB, way past GitHub's 100MB file limit.
+# See index.html's game-play-trigger JS: it embeds the R2-hosted build via
+# iframe, this folder is just the local staging copy used to build the R2
+# upload.
+game/*
+!game/.gitkeep

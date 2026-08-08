@@ -395,6 +395,39 @@ p { margin: 0; }
   font-size: 0.88rem;
 }
 .game-frame-foot .dot { color: var(--gold); }
+.coming-soon { cursor: pointer; }
+.game-screen iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+.game-fullscreen-btn {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.45);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 2;
+}
+.game-fullscreen-btn:hover { background: rgba(0, 0, 0, 0.65); }
+.game-fullscreen-btn svg { width: 20px; height: 20px; color: #fff; }
+.game-screen:fullscreen,
+.game-screen:-webkit-full-screen {
+  aspect-ratio: unset;
+  width: 100vw;
+  height: 100vh;
+  border-radius: 0;
+  background: #000;
+}
 
 .ig-follow {
   margin-top: 28px;
@@ -711,6 +744,9 @@ footer {
     <symbol id="icon-burger" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
       <path d="M4 7h16M4 12h16M4 17h16"/>
     </symbol>
+    <symbol id="icon-expand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M8 3H4v4M16 3h4v4M8 21H4v-4M16 21h4v-4"/>
+    </symbol>
   </defs>
 </svg>
 
@@ -752,7 +788,7 @@ footer {
     <p class="lede fit-line" data-i18n="hero_lede">Мы дописываем последние сцены — совсем скоро щенка можно будет завести, выгуливать и учить командам прямо на этой странице, без установки.</p>
 
     <div class="game-frame">
-      <div class="game-screen">
+      <div class="game-screen" id="game-screen">
         <div class="paw-field" aria-hidden="true">
           <svg style="top:8%; left:6%; transform:rotate(-12deg);"><use href="#icon-paw"></use></svg>
           <svg style="top:62%; left:14%; transform:rotate(8deg);"><use href="#icon-paw"></use></svg>
@@ -760,17 +796,20 @@ footer {
           <svg style="top:70%; left:78%; transform:rotate(-16deg);"><use href="#icon-paw"></use></svg>
           <svg style="top:40%; left:46%; transform:rotate(4deg);"><use href="#icon-paw"></use></svg>
         </div>
-        <div class="coming-soon">
+        <div class="coming-soon" id="game-play-trigger" role="button" tabindex="0" aria-label="Играть">
           <div class="play-badge">
             <svg><use href="#icon-play"></use></svg>
           </div>
-          <strong data-i18n="coming_soon_title">Скоро</strong>
-          <span data-i18n="coming_soon_sub">Демо появится прямо тут, как только будет готово</span>
+          <strong data-i18n="coming_soon_title">Играть</strong>
+          <span data-i18n="coming_soon_sub">Нажмите, чтобы начать — игра загрузится прямо здесь</span>
         </div>
+        <button class="game-fullscreen-btn" id="game-fullscreen-btn" type="button" aria-label="Развернуть на весь экран" style="display:none;">
+          <svg><use href="#icon-expand"></use></svg>
+        </button>
       </div>
       <div class="game-frame-foot">
         <span data-i18n="brand">Школа послушания</span>
-        <span><span class="dot">●</span> <span data-i18n="frame_foot_right">в разработке</span></span>
+        <span><span class="dot">●</span> <span data-i18n="frame_foot_right">демо</span></span>
       </div>
     </div>
 
@@ -936,9 +975,9 @@ iOS:
       brand: "Школа послушания",
       hero_h1: "Игра появится прямо здесь, в браузере",
       hero_lede: "Мы дописываем последние сцены — совсем скоро щенка можно будет завести, выгуливать и учить командам прямо на этой странице, без установки.",
-      coming_soon_title: "Скоро",
-      coming_soon_sub: "Демо появится прямо тут, как только будет готово",
-      frame_foot_right: "в разработке",
+      coming_soon_title: "Играть",
+      coming_soon_sub: "Нажмите, чтобы начать — игра загрузится прямо здесь",
+      frame_foot_right: "демо",
       ig_follow_text: "Следить за разработкой игры",
       partners_eyebrow: "Партнёры",
       partners_h2: "С кем мы дружим",
@@ -996,9 +1035,9 @@ iOS:
       brand: "Puppy Academy",
       hero_h1: "The game is coming right here, in your browser",
       hero_lede: "We're finishing the last scenes — soon you'll adopt, walk, and train a puppy right on this page, no install needed.",
-      coming_soon_title: "Coming soon",
-      coming_soon_sub: "The demo will show up right here as soon as it's ready",
-      frame_foot_right: "in development",
+      coming_soon_title: "Play",
+      coming_soon_sub: "Click to start — the game loads right here",
+      frame_foot_right: "demo",
       ig_follow_text: "Follow the game's progress",
       partners_eyebrow: "Partners",
       partners_h2: "Who we work with",
@@ -1124,6 +1163,46 @@ iOS:
           }
         })
         .catch(function () { /* leave placeholder "0" */ });
+    }
+
+    // Playable game embed. Lazy-loaded on click rather than on page load --
+    // the exported build is 400+ MB, so nobody should download it just for
+    // landing on the page. The fullscreen button targets #game-screen (the
+    // wrapper), not the iframe itself, so the button stays visible/clickable
+    // while fullscreened instead of disappearing along with everything
+    // outside the fullscreened element.
+    var GAME_URL = "https://pub-b3c8795c263a41fe9666019beb91cf55.r2.dev/index.html";
+    var gameScreen = document.getElementById("game-screen");
+    var playTrigger = document.getElementById("game-play-trigger");
+    var fsBtn = document.getElementById("game-fullscreen-btn");
+    if (gameScreen && playTrigger) {
+      var loadGame = function () {
+        var iframe = document.createElement("iframe");
+        iframe.src = GAME_URL;
+        iframe.setAttribute("allow", "autoplay; fullscreen");
+        iframe.setAttribute("allowfullscreen", "");
+        iframe.title = "Школа послушания";
+        playTrigger.replaceWith(iframe);
+        if (fsBtn) fsBtn.style.display = "flex";
+      };
+      playTrigger.addEventListener("click", loadGame);
+      playTrigger.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          loadGame();
+        }
+      });
+    }
+    if (fsBtn && gameScreen) {
+      fsBtn.addEventListener("click", function () {
+        if (document.fullscreenElement || document.webkitFullscreenElement) {
+          (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+        } else if (gameScreen.requestFullscreen) {
+          gameScreen.requestFullscreen();
+        } else if (gameScreen.webkitRequestFullscreen) {
+          gameScreen.webkitRequestFullscreen();
+        }
+      });
     }
 
     // Burger menu -- toggle open/closed, close on outside click, close on
