@@ -5,3 +5,5 @@
 # upload.
 game/*
 !game/.gitkeep
+game-ru/*
+game-en/*
