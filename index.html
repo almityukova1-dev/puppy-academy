@@ -461,6 +461,23 @@ p { margin: 0; }
 }
 .game-fullscreen-btn:hover { background: rgba(0, 0, 0, 0.65); }
 .game-fullscreen-btn svg { width: 20px; height: 20px; color: #fff; }
+.game-rotate-message {
+  display: none;
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  background: rgba(36, 57, 46, 0.92);
+  color: var(--cream);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  text-align: center;
+  padding: 2rem;
+}
+.game-rotate-message.visible { display: flex; }
+.game-rotate-message svg { width: 56px; height: 56px; }
+.game-rotate-message span { font-size: 1rem; max-width: 30ch; }
 .game-screen:fullscreen,
 .game-screen:-webkit-full-screen,
 .game-screen.game-fake-fullscreen {
@@ -918,6 +935,10 @@ footer {
         <button class="game-fullscreen-btn" id="game-fullscreen-btn" type="button" aria-label="Развернуть на весь экран" style="display:none;">
           <svg><use href="#icon-expand"></use></svg>
         </button>
+        <div class="game-rotate-message" id="game-rotate-message">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="10" rx="2"/><path d="M12 3v3M9 4.5l3-1.5 3 1.5"/></svg>
+          <span data-i18n="game_rotate_message">Поверните телефон в горизонтальное положение и нажмите кнопку ещё раз</span>
+        </div>
       </div>
       <div class="game-frame-foot">
         <span data-i18n="brand">Школа послушания</span>
@@ -1099,6 +1120,7 @@ iOS:
       hero_rotate_note: "С телефона: поверни его в горизонтальное положение перед тем как нажать «Играть» — автоповорот работает не на всех устройствах.",
       hero_note: "Полный план будущих обновлений — ниже, в разделе «План обновлений». При первом запуске игра грузится дольше обычного — наберитесь терпения. Прогресс сохраняется только в этом браузере и на этом устройстве. И не забудьте выбрать язык (RU / EN) на титульном экране игры, прежде чем нажать «Играть».",
       game_lang_picker_label: "Язык игры:",
+      game_rotate_message: "Поверните телефон в горизонтальное положение и нажмите кнопку ещё раз",
       coming_soon_title: "Играть",
       coming_soon_sub: "Нажмите, чтобы начать — игра загрузится прямо здесь",
       frame_foot_right: "демо",
@@ -1163,6 +1185,7 @@ iOS:
       hero_rotate_note: "On phone: turn it to landscape before pressing Play — auto-rotate doesn't work on every device.",
       hero_note: "See what's coming next in the Roadmap section below. First launch takes a bit longer than usual — thanks for your patience. Your progress is saved only in this browser, on this device. And pick your language (RU / EN) on the game's title screen before you hit Play.",
       game_lang_picker_label: "Game language:",
+      game_rotate_message: "Turn your phone to landscape and press the button again",
       coming_soon_title: "Play",
       coming_soon_sub: "Click to start — the game loads right here",
       frame_foot_right: "demo",
@@ -1443,7 +1466,33 @@ iOS:
           }
         } catch (e) {}
       };
+      var rotateMsg = document.getElementById("game-rotate-message");
+      var isPortrait = function () {
+        return window.matchMedia && window.matchMedia("(orientation: portrait)").matches;
+      };
+      if (rotateMsg) {
+        window.addEventListener("orientationchange", function () {
+          if (!isPortrait()) rotateMsg.classList.remove("visible");
+        });
+      }
       fsBtn.addEventListener("click", function () {
+        // Users kept trying to go fullscreen while still holding the phone
+        // upright, ending up with the game stuck edge-to-edge in portrait
+        // (unusably cramped for a landscape-designed game) despite the
+        // hero-note reminder above the game box. Catching it here -- right
+        // where they're already looking, on the button they just pressed --
+        // is a lot more likely to register than text they scrolled past.
+        if (
+          rotateMsg &&
+          isPortrait() &&
+          !document.fullscreenElement &&
+          !document.webkitFullscreenElement &&
+          !gameScreen.classList.contains(FAKE_FS_CLASS)
+        ) {
+          rotateMsg.classList.add("visible");
+          return;
+        }
+        if (rotateMsg) rotateMsg.classList.remove("visible");
         if (document.fullscreenElement || document.webkitFullscreenElement) {
           (document.exitFullscreen || document.webkitExitFullscreen).call(document);
         } else if (gameScreen.classList.contains(FAKE_FS_CLASS)) {
