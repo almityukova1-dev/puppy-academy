@@ -1416,8 +1416,40 @@ iOS:
       setSelectedGameLang(selectedGameLang);
     }
 
+    // Background prefetch: start downloading the game's big files while the
+    // visitor is still reading the page, instead of only starting once they
+    // press Play. Doesn't reduce total bytes -- it just moves WHEN the wait
+    // happens. Plain fetch() (not <link rel=prefetch>, which some browsers
+    // deprioritize/ignore for same-page same-tab large downloads) warms the
+    // HTTP cache; the real load a bit later reuses it. Guarded so it never
+    // fires twice for the same language and never fires again once the
+    // player has actually pressed Play (no point warming a cache nobody
+    // will read from anymore).
+    var prefetchedLangs = {};
+    var gameplayStarted = false;
+    var prefetchGameFiles = function (lang) {
+      if (gameplayStarted || prefetchedLangs[lang]) return;
+      prefetchedLangs[lang] = true;
+      ["index.pck", "index.wasm", "index.js"].forEach(function (f) {
+        fetch(GAME_BASE + "game-" + lang + "/" + f, { credentials: "omit" }).catch(function () {});
+      });
+    };
+    window.addEventListener("load", function () {
+      setTimeout(function () {
+        prefetchGameFiles(selectedGameLang);
+      }, 1500);
+    });
+    if (langPicker) {
+      langPicker.querySelectorAll(".game-lang-btn").forEach(function (b) {
+        b.addEventListener("click", function () {
+          prefetchGameFiles(b.getAttribute("data-lang"));
+        });
+      });
+    }
+
     if (gameScreen && playTrigger) {
       var loadGame = function () {
+        gameplayStarted = true;
         var iframe = document.createElement("iframe");
         iframe.src = GAME_BASE + "game-" + selectedGameLang + "/index.html?lang=" + selectedGameLang;
         iframe.setAttribute("allow", "autoplay; fullscreen");
@@ -1471,9 +1503,28 @@ iOS:
         return window.matchMedia && window.matchMedia("(orientation: portrait)").matches;
       };
       if (rotateMsg) {
-        window.addEventListener("orientationchange", function () {
-          if (!isPortrait()) rotateMsg.classList.remove("visible");
-        });
+        // Covers the case where the player entered fullscreen correctly
+        // (already landscape) and only rotated to portrait afterward --
+        // clicking the button was the only thing checked before, so
+        // rotating mid-session with no new click left the game stuck
+        // edge-to-edge in portrait with no warning at all. The message
+        // overlays the fullscreened game itself (it's a child of
+        // #game-screen, which is the element that goes fullscreen), so
+        // this works whether real or CSS fake-fullscreen is active.
+        var checkOrientationWhileFullscreen = function () {
+          var inFullscreen = !!(
+            document.fullscreenElement ||
+            document.webkitFullscreenElement ||
+            gameScreen.classList.contains(FAKE_FS_CLASS)
+          );
+          if (inFullscreen && isPortrait()) {
+            rotateMsg.classList.add("visible");
+          } else if (!isPortrait()) {
+            rotateMsg.classList.remove("visible");
+          }
+        };
+        window.addEventListener("orientationchange", checkOrientationWhileFullscreen);
+        window.addEventListener("resize", checkOrientationWhileFullscreen);
       }
       fsBtn.addEventListener("click", function () {
         // Users kept trying to go fullscreen while still holding the phone
