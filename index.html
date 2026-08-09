@@ -622,17 +622,6 @@ p { margin: 0; }
 .partner-ig svg { width: 16px; height: 16px; }
 .partner-ig:hover { background: var(--mint); color: var(--cream); }
 
-.partner-card.placeholder {
-  background: transparent;
-  border: 2px dashed var(--mint);
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  color: var(--forest-soft);
-  font-size: 0.92rem;
-  min-height: 140px;
-}
-
 /* ---- footer ---- */
 footer {
   padding: 34px 0 44px;
@@ -969,7 +958,6 @@ footer {
       </div>
 
       <div class="partner-grid">
-        <!-- Плейсхолдер-описание партнёра — замените на реальный текст, когда он будет готов -->
         <article class="partner-card">
           <div class="partner-top">
             <div class="partner-avatar">
@@ -987,9 +975,21 @@ footer {
           </a>
         </article>
 
-        <div class="partner-card placeholder" data-i18n="placeholder_card">
-          Здесь скоро появится ещё один партнёр
-        </div>
+        <article class="partner-card">
+          <div class="partner-top">
+            <div class="partner-avatar">
+              <svg><use href="#icon-paw"></use></svg>
+            </div>
+            <div>
+              <div class="partner-name" data-i18n="partner2_name">Маркетинговый партнёр</div>
+              <div class="partner-role">@petcobark</div>
+            </div>
+          </div>
+          <a class="partner-ig" href="https://www.instagram.com/petcobark" target="_blank" rel="noopener">
+            <svg><use href="#icon-instagram"></use></svg>
+            Instagram
+          </a>
+        </article>
       </div>
     </div>
   </section>
@@ -1131,7 +1131,7 @@ iOS:
       partner_cta_text: "Хотите стать партнёром — напишите нам в личные сообщения в",
       partner_name: "Путешествия с собаками",
       partner_bio: "Помогает подготовить поездку с собакой: перелёты, документы, маршруты и адаптация питомца в дороге.",
-      placeholder_card: "Здесь скоро появится ещё один партнёр",
+      partner2_name: "Маркетинговый партнёр",
       footer_ig_suffix: "в Instagram",
 
       menu_label: "Меню",
@@ -1196,7 +1196,7 @@ iOS:
       partner_cta_text: "Want to become a partner? Message us on",
       partner_name: "Dog travel help",
       partner_bio: "Helps plan trips with a dog: flights, paperwork, routes, and keeping your pet comfortable on the road.",
-      placeholder_card: "Another partner is coming soon",
+      partner2_name: "Marketing partner",
       footer_ig_suffix: "on Instagram",
 
       menu_label: "Menu",
