@@ -1478,9 +1478,52 @@ iOS:
       var supportsRealFullscreen = !!(
         gameScreen.requestFullscreen || gameScreen.webkitRequestFullscreen
       );
+      // iOS suspends the page's AudioContext when the screen locks (and,
+      // per report, doesn't reliably resume it on unlock even with the
+      // in-game sound setting still on) -- Wake Lock keeps the screen from
+      // auto-locking at all while actually playing, sidestepping that
+      // rather than trying to detect and recover from every suspend.
+      // Requires https + a real user gesture, both satisfied here (this
+      // runs from the fullscreen button's own click handler). Not
+      // supported on every browser/iOS version -- fails silently where
+      // it isn't, same as the orientation-lock attempts elsewhere here.
+      var wakeLock = null;
+      var requestWakeLock = function () {
+        try {
+          if (navigator.wakeLock) {
+            navigator.wakeLock.request("screen").then(
+              function (lock) { wakeLock = lock; },
+              function () {}
+            );
+          }
+        } catch (e) {}
+      };
+      var releaseWakeLock = function () {
+        try {
+          if (wakeLock) {
+            wakeLock.release().catch(function () {});
+            wakeLock = null;
+          }
+        } catch (e) {}
+      };
+      // The Wake Lock API auto-releases whenever the tab is backgrounded
+      // (locking the screen counts) and does NOT auto-reacquire on its own
+      // -- re-request once the page is visible again, but only if we're
+      // still meant to be holding it (still fullscreened).
+      document.addEventListener("visibilitychange", function () {
+        if (document.visibilityState === "visible" && !wakeLock) {
+          var stillFullscreen = !!(
+            document.fullscreenElement ||
+            document.webkitFullscreenElement ||
+            gameScreen.classList.contains(FAKE_FS_CLASS)
+          );
+          if (stillFullscreen) requestWakeLock();
+        }
+      });
       var exitFakeFullscreen = function () {
         gameScreen.classList.remove(FAKE_FS_CLASS);
         document.body.style.overflow = "";
+        releaseWakeLock();
         try {
           if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock();
         } catch (e) {}
@@ -1551,10 +1594,12 @@ iOS:
         } else if (supportsRealFullscreen) {
           (gameScreen.requestFullscreen || gameScreen.webkitRequestFullscreen).call(gameScreen);
           tryLockLandscape();
+          requestWakeLock();
         } else {
           gameScreen.classList.add(FAKE_FS_CLASS);
           document.body.style.overflow = "hidden";
           tryLockLandscape();
+          requestWakeLock();
           // Nudging a scroll is the long-standing trick that makes mobile
           // Safari actually collapse its address bar (which the real
           // Fullscreen API would otherwise handle) -- position:fixed alone
@@ -1571,6 +1616,16 @@ iOS:
         if (e.key === "Escape" && gameScreen.classList.contains(FAKE_FS_CLASS)) {
           exitFakeFullscreen();
         }
+      });
+      // Real fullscreen can also be exited via ESC or the browser's own UI,
+      // not just this button -- release the wake lock either way, not only
+      // on the button-click exit path above.
+      ["fullscreenchange", "webkitfullscreenchange"].forEach(function (evt) {
+        document.addEventListener(evt, function () {
+          if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+            releaseWakeLock();
+          }
+        });
       });
     }
 
