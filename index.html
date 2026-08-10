@@ -1478,9 +1478,17 @@ iOS:
       // any browser without requestFullscreen/webkitRequestFullscreen, fall
       // back to a CSS-only "fake fullscreen": fix the game box to cover the
       // whole viewport instead. Same button exits it either way.
+      // iOS defines requestFullscreen()/webkitRequestFullscreen() on the
+      // prototype even though it silently doesn't work for plain elements
+      // (video-only) -- feature-detection alone reported true there,
+      // sending EVERY iOS browser (Safari and Chrome-iOS, same WebKit
+      // engine) down the real-fullscreen branch, which none of the
+      // keyboard-handling fixes below ever touch. Explicitly excluding iOS
+      // forces the CSS-fallback (FAKE_FS_CLASS) path instead, where those
+      // fixes actually apply.
       var supportsRealFullscreen = !!(
         gameScreen.requestFullscreen || gameScreen.webkitRequestFullscreen
-      );
+      ) && !/iPad|iPhone|iPod/.test(navigator.userAgent);
       // iOS suspends the page's AudioContext when the screen locks (and,
       // per report, doesn't reliably resume it on unlock even with the
       // in-game sound setting still on) -- Wake Lock keeps the screen from
