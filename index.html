@@ -1527,7 +1527,6 @@ iOS:
         gameScreen.classList.remove(FAKE_FS_CLASS);
         document.body.style.overflow = "";
         releaseWakeLock();
-        // Undo syncFakeFullscreenKeyboard's inline override below.
         gameScreen.style.transform = "";
         try {
           if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock();
@@ -1536,24 +1535,34 @@ iOS:
       // 100dvh (the CSS rule above) tracks Safari's address bar show/hide,
       // but NOT the on-screen keyboard -- confirmed bug report: typing into
       // the game's name field (inside the iframe) made the screen "jump"
-      // and sometimes hid what was being typed. A first attempt tried
-      // resizing this container to match visualViewport's shrunk height,
-      // which per direct feedback made it WORSE (screen grew ~50% and
-      // nothing was visible at all after rotating) -- confirmed too risky
-      // to keep. Per direct request instead: keep the container's SIZE
-      // completely untouched, only slide it up with a transform so the
-      // portion covered by the keyboard scrolls into view above it,
-      // computed from how much visualViewport has shrunk vs. the layout
-      // viewport (the actual keyboard height).
+      // and sometimes hid what was being typed. Two attempts at precisely
+      // resizing/repositioning this fixed-position container to compensate
+      // for the keyboard (matching visualViewport's height, then a
+      // translateY shift) both failed on real devices -- confirmed by
+      // direct testing, not just theory. Fixed-position + on-screen-
+      // keyboard is a genuinely broken combination across mobile browsers,
+      // not something worth a third attempt at precise math for. Dropping
+      // out of the custom fullscreen entirely once the keyboard opens is
+      // the standard, robust workaround instead: back in normal (non-
+      // fixed) document flow, the browser's OWN default "scroll the
+      // focused input into view" behavior already works correctly, no
+      // custom viewport math needed at all.
+      var fullscreenViewportHeight = null;
       if (window.visualViewport) {
-        var syncFakeFullscreenKeyboard = function () {
+        var handleKeyboardOpen = function () {
           if (!gameScreen.classList.contains(FAKE_FS_CLASS)) return;
-          var vv = window.visualViewport;
-          var keyboardHeight = window.innerHeight - vv.height - vv.offsetTop;
-          gameScreen.style.transform = keyboardHeight > 40 ? "translateY(-" + keyboardHeight + "px)" : "";
+          if (fullscreenViewportHeight === null) {
+            fullscreenViewportHeight = window.visualViewport.height;
+            return;
+          }
+          // >120px shrink is the keyboard opening, not just address-bar
+          // chrome changing height (that's a much smaller delta).
+          if (fullscreenViewportHeight - window.visualViewport.height > 120) {
+            exitFakeFullscreen();
+            fullscreenViewportHeight = null;
+          }
         };
-        window.visualViewport.addEventListener("resize", syncFakeFullscreenKeyboard);
-        window.visualViewport.addEventListener("scroll", syncFakeFullscreenKeyboard);
+        window.visualViewport.addEventListener("resize", handleKeyboardOpen);
       }
       // Best-effort landscape lock -- iOS Safari doesn't support the
       // Orientation Lock API at all in a regular tab (Apple restricts it to
@@ -1624,6 +1633,10 @@ iOS:
           requestWakeLock();
         } else {
           gameScreen.classList.add(FAKE_FS_CLASS);
+          // Fresh baseline for handleKeyboardOpen() -- stops a stale value
+          // from a previous fullscreen session causing a false "keyboard
+          // opened" detection on the very next viewport resize.
+          fullscreenViewportHeight = null;
           // Reset to a known Y=0 baseline BEFORE the address-bar-collapse
           // nudge below -- that nudge (scrollTo(0, 1)) only reads as "hide
           // the bar" to Safari when it's a small downward scroll starting
