@@ -1555,10 +1555,19 @@ iOS:
       // fixed) document flow, the browser's OWN default "scroll the
       // focused input into view" behavior already works correctly, no
       // custom viewport math needed at all.
+      //
+      // Covers BOTH fullscreen modes, not just the CSS fallback -- verified
+      // directly (Playwright + Android Chrome device emulation, not just
+      // assumed) that Android takes the REAL Fullscreen API branch
+      // (supportsRealFullscreen is true there, unlike iOS), which this
+      // handler used to skip entirely via the FAKE_FS_CLASS check below,
+      // so none of this keyboard handling ever ran on Android at all.
       var fullscreenViewportHeight = null;
       if (window.visualViewport) {
         var handleKeyboardOpen = function () {
-          if (!gameScreen.classList.contains(FAKE_FS_CLASS)) return;
+          var inFake = gameScreen.classList.contains(FAKE_FS_CLASS);
+          var inReal = !!(document.fullscreenElement || document.webkitFullscreenElement);
+          if (!inFake && !inReal) return;
           if (fullscreenViewportHeight === null) {
             fullscreenViewportHeight = window.visualViewport.height;
             return;
@@ -1566,7 +1575,11 @@ iOS:
           // >120px shrink is the keyboard opening, not just address-bar
           // chrome changing height (that's a much smaller delta).
           if (fullscreenViewportHeight - window.visualViewport.height > 120) {
-            exitFakeFullscreen();
+            if (inFake) {
+              exitFakeFullscreen();
+            } else {
+              (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+            }
             fullscreenViewportHeight = null;
           }
         };
@@ -1637,6 +1650,8 @@ iOS:
           exitFakeFullscreen();
         } else if (supportsRealFullscreen) {
           (gameScreen.requestFullscreen || gameScreen.webkitRequestFullscreen).call(gameScreen);
+          // Same fresh-baseline reasoning as the CSS-fallback branch below.
+          fullscreenViewportHeight = null;
           tryLockLandscape();
           requestWakeLock();
         } else {
