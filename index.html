@@ -1527,10 +1527,33 @@ iOS:
         gameScreen.classList.remove(FAKE_FS_CLASS);
         document.body.style.overflow = "";
         releaseWakeLock();
+        // Undo syncFakeFullscreenHeight's inline overrides below, letting
+        // the plain CSS (100dvh) rule take over again.
+        gameScreen.style.height = "";
+        gameScreen.style.top = "";
         try {
           if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock();
         } catch (e) {}
       };
+      // 100dvh (the CSS rule above) tracks Safari's address bar show/hide,
+      // but NOT the on-screen keyboard -- confirmed bug report: typing into
+      // the game's name field (inside the iframe) made the screen "jump"
+      // and sometimes hid what was being typed, because this fixed-
+      // position fake-fullscreen container stayed at full height while the
+      // keyboard covered part of it, instead of shrinking to match the
+      // actually-visible area above the keyboard. visualViewport DOES
+      // track the keyboard, so mirror its size/position onto the container
+      // directly whenever it changes (only while fake-fullscreen is
+      // active -- real Fullscreen API mode isn't affected by this at all).
+      if (window.visualViewport) {
+        var syncFakeFullscreenHeight = function () {
+          if (!gameScreen.classList.contains(FAKE_FS_CLASS)) return;
+          gameScreen.style.height = window.visualViewport.height + "px";
+          gameScreen.style.top = window.visualViewport.offsetTop + "px";
+        };
+        window.visualViewport.addEventListener("resize", syncFakeFullscreenHeight);
+        window.visualViewport.addEventListener("scroll", syncFakeFullscreenHeight);
+      }
       // Best-effort landscape lock -- iOS Safari doesn't support the
       // Orientation Lock API at all in a regular tab (Apple restricts it to
       // installed PWAs), so this silently does nothing there. Android
