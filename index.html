@@ -1527,10 +1527,8 @@ iOS:
         gameScreen.classList.remove(FAKE_FS_CLASS);
         document.body.style.overflow = "";
         releaseWakeLock();
-        // Undo syncFakeFullscreenHeight's inline overrides below, letting
-        // the plain CSS (100dvh) rule take over again.
-        gameScreen.style.height = "";
-        gameScreen.style.top = "";
+        // Undo syncFakeFullscreenKeyboard's inline override below.
+        gameScreen.style.transform = "";
         try {
           if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock();
         } catch (e) {}
@@ -1538,21 +1536,24 @@ iOS:
       // 100dvh (the CSS rule above) tracks Safari's address bar show/hide,
       // but NOT the on-screen keyboard -- confirmed bug report: typing into
       // the game's name field (inside the iframe) made the screen "jump"
-      // and sometimes hid what was being typed, because this fixed-
-      // position fake-fullscreen container stayed at full height while the
-      // keyboard covered part of it, instead of shrinking to match the
-      // actually-visible area above the keyboard. visualViewport DOES
-      // track the keyboard, so mirror its size/position onto the container
-      // directly whenever it changes (only while fake-fullscreen is
-      // active -- real Fullscreen API mode isn't affected by this at all).
+      // and sometimes hid what was being typed. A first attempt tried
+      // resizing this container to match visualViewport's shrunk height,
+      // which per direct feedback made it WORSE (screen grew ~50% and
+      // nothing was visible at all after rotating) -- confirmed too risky
+      // to keep. Per direct request instead: keep the container's SIZE
+      // completely untouched, only slide it up with a transform so the
+      // portion covered by the keyboard scrolls into view above it,
+      // computed from how much visualViewport has shrunk vs. the layout
+      // viewport (the actual keyboard height).
       if (window.visualViewport) {
-        var syncFakeFullscreenHeight = function () {
+        var syncFakeFullscreenKeyboard = function () {
           if (!gameScreen.classList.contains(FAKE_FS_CLASS)) return;
-          gameScreen.style.height = window.visualViewport.height + "px";
-          gameScreen.style.top = window.visualViewport.offsetTop + "px";
+          var vv = window.visualViewport;
+          var keyboardHeight = window.innerHeight - vv.height - vv.offsetTop;
+          gameScreen.style.transform = keyboardHeight > 40 ? "translateY(-" + keyboardHeight + "px)" : "";
         };
-        window.visualViewport.addEventListener("resize", syncFakeFullscreenHeight);
-        window.visualViewport.addEventListener("scroll", syncFakeFullscreenHeight);
+        window.visualViewport.addEventListener("resize", syncFakeFullscreenKeyboard);
+        window.visualViewport.addEventListener("scroll", syncFakeFullscreenKeyboard);
       }
       // Best-effort landscape lock -- iOS Safari doesn't support the
       // Orientation Lock API at all in a regular tab (Apple restricts it to
