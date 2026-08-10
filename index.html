@@ -1572,9 +1572,17 @@ iOS:
             fullscreenViewportHeight = window.visualViewport.height;
             return;
           }
-          // >120px shrink is the keyboard opening, not just address-bar
-          // chrome changing height (that's a much smaller delta).
-          if (fullscreenViewportHeight - window.visualViewport.height > 120) {
+          // Relative (%) threshold, not a fixed pixel number -- the game
+          // is landscape-only, and a landscape viewport starts much
+          // shorter than portrait, so a landscape on-screen keyboard also
+          // covers fewer absolute pixels even though it's proportionally
+          // just as disruptive. A fixed 120px threshold (tuned by feel,
+          // not measured) could simply never be reached in landscape,
+          // silently never detecting the keyboard there at all -- per
+          // direct feedback that's suspected as exactly why the fix
+          // didn't seem to do anything. 15% of the pre-keyboard height
+          // scales correctly for both orientations.
+          if (fullscreenViewportHeight - window.visualViewport.height > fullscreenViewportHeight * 0.15) {
             if (inFake) {
               exitFakeFullscreen();
             } else {
