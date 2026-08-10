@@ -1607,21 +1607,29 @@ iOS:
           // player scrolled to read the hero text before tapping
           // fullscreen), jumping straight to y=1 is actually a large
           // upward scroll, which Safari reads as the OPPOSITE gesture and
-          // shows the address bar instead of hiding it -- confirmed as the
-          // cause of fullscreen opening with the browser chrome still
-          // visible when entered from partway down the page.
+          // shows the address bar instead of hiding it.
           window.scrollTo(0, 0);
-          document.body.style.overflow = "hidden";
           tryLockLandscape();
           requestWakeLock();
           // Nudging a scroll is the long-standing trick that makes mobile
           // Safari actually collapse its address bar (which the real
           // Fullscreen API would otherwise handle) -- position:fixed alone
           // doesn't trigger it. Two rAFs: one to let the fixed layout paint
-          // first, then the actual scroll.
+          // first, then the actual scroll. Locking body scroll
+          // (overflow:hidden) is deliberately deferred until AFTER this
+          // nudge, not done upfront -- doing it first (as this used to)
+          // removes the page's own scrollable range immediately, so when
+          // already starting at the very top (nothing scrolled down first)
+          // there was nothing left to scroll BY, and the nudge silently did
+          // nothing -- address bar stayed visible even after y=0 reset
+          // above. Locking only after the nudge has actually landed still
+          // prevents any further scrolling once fullscreen is settled.
           requestAnimationFrame(function () {
             requestAnimationFrame(function () {
               window.scrollTo(0, 1);
+              requestAnimationFrame(function () {
+                document.body.style.overflow = "hidden";
+              });
             });
           });
         }
