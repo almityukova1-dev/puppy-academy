@@ -1600,6 +1600,17 @@ iOS:
           requestWakeLock();
         } else {
           gameScreen.classList.add(FAKE_FS_CLASS);
+          // Reset to a known Y=0 baseline BEFORE the address-bar-collapse
+          // nudge below -- that nudge (scrollTo(0, 1)) only reads as "hide
+          // the bar" to Safari when it's a small downward scroll starting
+          // near the top. If the page was already scrolled down (e.g. the
+          // player scrolled to read the hero text before tapping
+          // fullscreen), jumping straight to y=1 is actually a large
+          // upward scroll, which Safari reads as the OPPOSITE gesture and
+          // shows the address bar instead of hiding it -- confirmed as the
+          // cause of fullscreen opening with the browser chrome still
+          // visible when entered from partway down the page.
+          window.scrollTo(0, 0);
           document.body.style.overflow = "hidden";
           tryLockLandscape();
           requestWakeLock();
