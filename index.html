@@ -1489,6 +1489,22 @@ iOS:
       var supportsRealFullscreen = !!(
         gameScreen.requestFullscreen || gameScreen.webkitRequestFullscreen
       ) && !/iPad|iPhone|iPod/.test(navigator.userAgent);
+      // Exposed for the game itself (running same-origin in the iframe) to
+      // read via JavaScriptBridge -- Godot's own get_viewport_rect() size
+      // can't reliably tell the small pre-fullscreen preview box apart from
+      // true fullscreen (confirmed unreliable twice), so the game asks this
+      // page directly instead, since this page already knows for certain.
+      // Kept in sync at every real transition point below (fake-fullscreen
+      // enter/exit, real Fullscreen API enter/exit via any trigger --
+      // button, Escape, browser chrome).
+      window.gameIsFullscreen = false;
+      var updateGameFullscreenFlag = function () {
+        window.gameIsFullscreen = !!(
+          document.fullscreenElement ||
+          document.webkitFullscreenElement ||
+          gameScreen.classList.contains(FAKE_FS_CLASS)
+        );
+      };
       // iOS suspends the page's AudioContext when the screen locks (and,
       // per report, doesn't reliably resume it on unlock even with the
       // in-game sound setting still on) -- Wake Lock keeps the screen from
@@ -1539,6 +1555,7 @@ iOS:
         try {
           if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock();
         } catch (e) {}
+        updateGameFullscreenFlag();
       };
       // 100dvh (the CSS rule above) tracks Safari's address bar show/hide,
       // but NOT the on-screen keyboard -- confirmed bug report: typing into
@@ -1664,6 +1681,7 @@ iOS:
           requestWakeLock();
         } else {
           gameScreen.classList.add(FAKE_FS_CLASS);
+          updateGameFullscreenFlag();
           // Fresh baseline for handleKeyboardOpen() -- stops a stale value
           // from a previous fullscreen session causing a false "keyboard
           // opened" detection on the very next viewport resize.
@@ -1715,6 +1733,7 @@ iOS:
           if (!document.fullscreenElement && !document.webkitFullscreenElement) {
             releaseWakeLock();
           }
+          updateGameFullscreenFlag();
         });
       });
     }
