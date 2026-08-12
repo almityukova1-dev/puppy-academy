@@ -19,13 +19,22 @@ export default {
       return new Response(null, { headers: corsHeaders });
     }
 
-    // Called once per new visitor (the website only calls this the very
-    // first time a browser loads the page, tracked via localStorage) --
-    // increments the stored count by one and returns the new total.
+    // Two independent counters share this same Worker/KV namespace: the
+    // original web "Играть" total (?type= omitted or "web", stored under
+    // the original "total_players" key so existing counts aren't reset)
+    // and the Android APK download total (?type=android, its own key).
+    // Unknown/missing ?type always falls back to "web" -- keeps every
+    // caller from before this change working unmodified.
+    const counterType = url.searchParams.get("type") === "android" ? "android" : "web";
+    const kvKey = counterType === "android" ? "total_android_downloads" : "total_players";
+
+    // Called once per new visitor/downloader (the website only calls this
+    // the first time, tracked via localStorage) -- increments the stored
+    // count by one and returns the new total.
     if (url.pathname === "/increment" && request.method === "POST") {
-      let count = parseInt((await env.PLAYER_COUNTER.get("total_players")) || "0", 10);
+      let count = parseInt((await env.PLAYER_COUNTER.get(kvKey)) || "0", 10);
       count += 1;
-      await env.PLAYER_COUNTER.put("total_players", String(count));
+      await env.PLAYER_COUNTER.put(kvKey, String(count));
       return new Response(JSON.stringify({ count }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -34,7 +43,7 @@ export default {
     // Called on every repeat visit -- just reads the current total without
     // incrementing it again.
     if (url.pathname === "/count" && request.method === "GET") {
-      const count = parseInt((await env.PLAYER_COUNTER.get("total_players")) || "0", 10);
+      const count = parseInt((await env.PLAYER_COUNTER.get(kvKey)) || "0", 10);
       return new Response(JSON.stringify({ count }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });

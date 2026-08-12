@@ -1048,7 +1048,7 @@ footer {
         <h2 data-i18n="download_title">Скачать</h2>
       </div>
       <div class="download-buttons">
-        <a href="#" class="download-btn" data-i18n="download_android_btn">Скачать для Android</a>
+        <a href="https://puppysacademy.com/play/download/puppy_academy.apk" download="puppy_academy.apk" class="download-btn" id="download-android-btn" data-i18n="download_android_btn">Скачать для Android</a>
         <a href="#" class="download-btn" data-i18n="download_ios_btn">Скачать для iOS</a>
       </div>
       <p class="download-buttons-note" data-i18n="download_buttons_note">Ссылки для скачивания появятся здесь позже.</p>
@@ -1091,6 +1091,11 @@ iOS:
         <span class="support-counter-num" id="support-counter-num">0</span>
         <span class="support-counter-label" data-i18n="support_counter_label">игроков всего</span>
         <span class="support-counter-note" data-i18n="support_counter_note">(считаем уникальных игроков, нажавших «Играть»)</span>
+      </div>
+      <div class="support-counter">
+        <span class="support-counter-num" id="support-counter-android-num">0</span>
+        <span class="support-counter-label" data-i18n="support_counter_android_label">скачиваний Android</span>
+        <span class="support-counter-note" data-i18n="support_counter_android_note">(считаем уникальные скачивания apk)</span>
       </div>
     </div>
   </section>
@@ -1165,7 +1170,7 @@ iOS:
       download_eyebrow: "Игра на вашем устройстве",
       download_android_btn: "Скачать для Android",
       download_ios_btn: "Скачать для iOS",
-      download_buttons_note: "Ссылки для скачивания появятся здесь позже.",
+      download_buttons_note: "Android уже доступен. iOS появится позже.",
       download_instructions: "Android:\n1. Нажмите «Скачать для Android» и дождитесь загрузки файла\n2. Откройте скачанный файл (.apk)\n3. Разрешите установку из неизвестных источников, если попросит система\n4. Нажмите «Установить»\n\niOS:\n1. Откройте ссылку для скачивания в Safari\n2. Нажмите «Установить», когда появится запрос\n3. Зайдите в Настройки → «VPN и управление устройством»\n4. Найдите профиль разработчика и нажмите «Доверять»",
       download_help_1: "Если возникли сложности — напишите нам через",
       download_help_form_link: "форму",
@@ -1176,7 +1181,9 @@ iOS:
       support_eyebrow: "Спасибо!",
       support_placeholder: "Игра разрабатывается только одним человеком и требует очень много времени и немного денег — создавать игру не бесплатно.\n\nМы не просим вас дать нам денег, но порекомендовать игру друзьям, подписаться на страницу в Instagram, поставить лайки или прокомментировать рилсы — очень бы помогло.\n\nРазработчик готов ответить на любые ваши вопросы.\n\nСейчас игра доступна на этом сайте, и скачать приложение можно тоже только отсюда. Но в планах разместить приложение в Google Store и App Store, как только у нас появится больше 300 активных игроков.",
       support_counter_label: "игроков всего",
-      support_counter_note: "(считаем уникальных игроков, нажавших «Играть»)"
+      support_counter_note: "(считаем уникальных игроков, нажавших «Играть»)",
+      support_counter_android_label: "скачиваний Android",
+      support_counter_android_note: "(считаем уникальные скачивания apk)"
     },
     en: {
       page_title: "Puppy Academy — a puppy-raising game",
@@ -1242,7 +1249,9 @@ iOS:
       support_eyebrow: "Thank you!",
       support_placeholder: "The game is being developed by just one person and takes a lot of time and a bit of money — making a game isn't free.\n\nWe're not asking you for money, but recommending the game to friends, following our Instagram page, liking or commenting on reels would really help.\n\nThe developer is happy to answer any questions you have.\n\nRight now the game is only available on this site, and downloading it is only possible from here too. But we're planning to list it on the Google Play Store and App Store once we reach 300 active players.",
       support_counter_label: "players total",
-      support_counter_note: "(counting unique players who pressed Play)"
+      support_counter_note: "(counting unique players who pressed Play)",
+      support_counter_android_label: "Android downloads",
+      support_counter_android_note: "(counting unique apk downloads)"
     }
   };
 
@@ -1344,37 +1353,58 @@ iOS:
       });
     }
 
-    // Total-PLAYERS counter (not site visitors) -- backed by a small
-    // Cloudflare Worker (see website/cloudflare-counter/) instead of a
-    // third-party analytics service. Page load only ever READS the current
-    // total (GET /count); the increment only fires from inside loadGame()
-    // below, i.e. the first time this browser actually presses Play, not
-    // just for landing on the page. Guarded by localStorage (not a real
-    // login/account system, so clearing site data or a different
-    // browser/device counts again).
-    var counterEl = document.getElementById("support-counter-num");
+    // Two independent totals (not site visitors) -- backed by the same
+    // small Cloudflare Worker (see website/cloudflare-counter/worker.js)
+    // instead of a third-party analytics service, distinguished by a
+    // ?type= query param the worker uses to pick which KV key to touch.
+    // Page load only ever READS the current totals (GET /count); each
+    // increment only fires the first time THIS browser does that specific
+    // action (Play or Android download), tracked via its own localStorage
+    // key so playing AND downloading both count, independently, once each
+    // -- not a real login/account system, so clearing site data or a
+    // different browser/device counts again.
     var COUNTER_WORKER = "https://puppy-academy-counter.almityukova1.workers.dev";
-    var COUNTED_KEY = "puppy_academy_counted_v1";
-    var refreshCounterDisplay = function () {
-      if (!counterEl) return;
-      fetch(COUNTER_WORKER + "/count", { method: "GET" })
-        .then(function (r) { return r.json(); })
-        .then(function (data) {
-          if (typeof data.count === "number") counterEl.textContent = String(data.count);
-        })
-        .catch(function () { /* leave placeholder "0" */ });
+    var makeCounter = function (type, elId, countedKey) {
+      var el = document.getElementById(elId);
+      var qs = type ? "?type=" + type : "";
+      return {
+        refresh: function () {
+          if (!el) return;
+          fetch(COUNTER_WORKER + "/count" + qs, { method: "GET" })
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+              if (typeof data.count === "number") el.textContent = String(data.count);
+            })
+            .catch(function () { /* leave placeholder "0" */ });
+        },
+        countIfFirstTime: function () {
+          if (localStorage.getItem(countedKey)) return;
+          fetch(COUNTER_WORKER + "/increment" + qs, { method: "POST" })
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+              if (typeof data.count === "number" && el) el.textContent = String(data.count);
+              localStorage.setItem(countedKey, "1");
+            })
+            .catch(function () { /* leave the count as-is */ });
+        },
+      };
     };
-    var countThisPlayerIfFirstTime = function () {
-      if (localStorage.getItem(COUNTED_KEY)) return;
-      fetch(COUNTER_WORKER + "/increment", { method: "POST" })
-        .then(function (r) { return r.json(); })
-        .then(function (data) {
-          if (typeof data.count === "number" && counterEl) counterEl.textContent = String(data.count);
-          localStorage.setItem(COUNTED_KEY, "1");
-        })
-        .catch(function () { /* leave the count as-is */ });
-    };
-    refreshCounterDisplay();
+    var webCounter = makeCounter("web", "support-counter-num", "puppy_academy_counted_v1");
+    var androidCounter = makeCounter("android", "support-counter-android-num", "puppy_academy_android_counted_v1");
+    var countThisPlayerIfFirstTime = webCounter.countIfFirstTime;
+    webCounter.refresh();
+    androidCounter.refresh();
+
+    // Android APK download counts toward its own separate total (see
+    // androidCounter above) -- independent from the web-Play counter, own
+    // localStorage guard, so a visitor who does both is counted once in
+    // each.
+    var androidDownloadBtn = document.getElementById("download-android-btn");
+    if (androidDownloadBtn) {
+      androidDownloadBtn.addEventListener("click", function () {
+        androidCounter.countIfFirstTime();
+      });
+    }
 
     // Playable game embed. Lazy-loaded on click rather than on page load --
     // the exported build is 300+ MB, so nobody should download it just for
