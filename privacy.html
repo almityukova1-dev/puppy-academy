@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Privacy Policy — Puppy Academy</title>
+<title data-ru="Политика конфиденциальности — Школа послушания" data-en="Privacy Policy — Puppy Academy">Privacy Policy — Puppy Academy</title>
 <style>
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -13,6 +13,43 @@
     line-height: 1.6;
     color: #2b2318;
     background: #fffaf0;
+  }
+  .lang-switch {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    display: flex;
+    gap: 4px;
+    background: #fff;
+    border-radius: 10px;
+    padding: 4px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+  }
+  .lang-switch button {
+    border: none;
+    background: transparent;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    color: #6b5a45;
+  }
+  .lang-switch button.active {
+    background: #8cc7a1;
+    color: #fff;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .brand img { width: 40px; height: 45px; object-fit: contain; }
+  .brand span {
+    font-weight: 800;
+    font-size: 20px;
+    color: #6b4a2b;
   }
   h1 {
     color: #6b4a2b;
@@ -34,36 +71,62 @@
 </head>
 <body>
 
-<h1>Privacy Policy — Puppy Academy</h1>
-<p class="updated">Last updated: August 14, 2026</p>
+<div class="lang-switch">
+  <button id="btn-en" class="active" onclick="setLang('en')">EN</button>
+  <button id="btn-ru" onclick="setLang('ru')">РУ</button>
+</div>
 
-<p>This Privacy Policy explains what information Puppy Academy ("the App," "we," "us") collects, and what it does not collect. We built this App to be safe for players of all ages, including children, and we keep data collection to the minimum needed to run the game.</p>
+<div class="brand">
+  <img src="/assets/logo.png" alt="Puppy Academy logo">
+  <span data-ru="Школа послушания" data-en="Puppy Academy">Puppy Academy</span>
+</div>
 
-<h2>1. Information Stored on Your Device</h2>
-<p>Your game progress (pet stats, commands learned, in-game currency, etc.) is saved locally on your own device. This save data is not uploaded to us, is not tied to your identity, and we do not have access to it.</p>
+<h1 data-ru="Политика конфиденциальности — Школа послушания" data-en="Privacy Policy — Puppy Academy">Privacy Policy — Puppy Academy</h1>
+<p class="updated" data-ru="Обновлено: 14 августа 2026" data-en="Last updated: August 14, 2026">Last updated: August 14, 2026</p>
 
-<h2>2. Information We Do Collect</h2>
-<p>We collect a very limited amount of anonymous, aggregate information:</p>
+<p data-ru='Эта Политика конфиденциальности объясняет, какую информацию собирает «Школа послушания» ("Приложение", "мы"), а какую — нет. Мы создали Приложение безопасным для игроков любого возраста, включая детей, и собираем данные по минимуму, необходимому для работы игры.' data-en='This Privacy Policy explains what information Puppy Academy ("the App," "we," "us") collects, and what it does not collect. We built this App to be safe for players of all ages, including children, and we keep data collection to the minimum needed to run the game.'>This Privacy Policy explains what information Puppy Academy ("the App," "we," "us") collects, and what it does not collect. We built this App to be safe for players of all ages, including children, and we keep data collection to the minimum needed to run the game.</p>
+
+<h2 data-ru="1. Информация, хранящаяся на вашем устройстве" data-en="1. Information Stored on Your Device">1. Information Stored on Your Device</h2>
+<p data-ru="Прогресс вашей игры (показатели питомца, выученные команды, внутриигровая валюта и т.д.) сохраняется локально на вашем устройстве. Эти данные не отправляются нам, не привязаны к вашей личности, и у нас нет к ним доступа." data-en="Your game progress (pet stats, commands learned, in-game currency, etc.) is saved locally on your own device. This save data is not uploaded to us, is not tied to your identity, and we do not have access to it.">Your game progress (pet stats, commands learned, in-game currency, etc.) is saved locally on your own device. This save data is not uploaded to us, is not tied to your identity, and we do not have access to it.</p>
+
+<h2 data-ru="2. Какую информацию мы собираем" data-en="2. Information We Do Collect">2. Information We Do Collect</h2>
+<p data-ru="Мы собираем очень ограниченный объём анонимной, агрегированной информации:" data-en="We collect a very limited amount of anonymous, aggregate information:">We collect a very limited amount of anonymous, aggregate information:</p>
 <ul>
-  <li><strong>Play/download counters:</strong> we count how many times the game is played or downloaded, as an anonymous total. This count is not linked to any individual player or device.</li>
-  <li><strong>Standard web server logs:</strong> like most websites, our hosting providers (GitHub Pages, Cloudflare) may automatically log basic technical information (such as IP address and browser type) for security and performance purposes. We do not personally review or use these logs to identify individual players.</li>
+  <li data-ru="<strong>Счётчики запусков/скачиваний:</strong> мы считаем, сколько раз игру запустили или скачали, в виде анонимного общего числа. Этот счётчик не привязан ни к какому конкретному игроку или устройству." data-en="<strong>Play/download counters:</strong> we count how many times the game is played or downloaded, as an anonymous total. This count is not linked to any individual player or device."><strong>Play/download counters:</strong> we count how many times the game is played or downloaded, as an anonymous total. This count is not linked to any individual player or device.</li>
+  <li data-ru="<strong>Стандартные логи веб-сервера:</strong> как и большинство сайтов, наши хостинг-провайдеры (GitHub Pages, Cloudflare) могут автоматически фиксировать базовую техническую информацию (например, IP-адрес и тип браузера) в целях безопасности и производительности. Мы не просматриваем и не используем эти логи для идентификации отдельных игроков." data-en="<strong>Standard web server logs:</strong> like most websites, our hosting providers (GitHub Pages, Cloudflare) may automatically log basic technical information (such as IP address and browser type) for security and performance purposes. We do not personally review or use these logs to identify individual players."><strong>Standard web server logs:</strong> like most websites, our hosting providers (GitHub Pages, Cloudflare) may automatically log basic technical information (such as IP address and browser type) for security and performance purposes. We do not personally review or use these logs to identify individual players.</li>
 </ul>
 
-<h2>3. In-App Purchases (Timer Skips)</h2>
-<p>Purchases of virtual currency are processed by our third-party payment provider (Paddle). Payment details (card number, billing address, email used for the receipt) are collected and processed directly by the payment provider under their own privacy policy — we do not see or store your full payment information.</p>
-<p>After a successful purchase, you receive a one-time code which you enter inside the App to activate your purchase. Redeeming a code does not require creating an account or providing personal information to us.</p>
+<h2 data-ru="3. Покупки в приложении (скипы таймера)" data-en="3. In-App Purchases (Timer Skips)">3. In-App Purchases (Timer Skips)</h2>
+<p data-ru="Покупки внутриигровой валюты обрабатываются сторонним платёжным провайдером (Paddle). Платёжные данные (номер карты, платёжный адрес, email для чека) собираются и обрабатываются непосредственно платёжным провайдером согласно его собственной политике конфиденциальности — мы не видим и не храним ваши полные платёжные данные." data-en="Purchases of virtual currency are processed by our third-party payment provider (Paddle). Payment details (card number, billing address, email used for the receipt) are collected and processed directly by the payment provider under their own privacy policy — we do not see or store your full payment information.">Purchases of virtual currency are processed by our third-party payment provider (Paddle). Payment details (card number, billing address, email used for the receipt) are collected and processed directly by the payment provider under their own privacy policy — we do not see or store your full payment information.</p>
+<p data-ru="После успешной покупки вы получаете одноразовый код, который вводите в Приложении для активации покупки. Погашение кода не требует создания аккаунта или предоставления нам личных данных." data-en="After a successful purchase, you receive a one-time code which you enter inside the App to activate your purchase. Redeeming a code does not require creating an account or providing personal information to us.">After a successful purchase, you receive a one-time code which you enter inside the App to activate your purchase. Redeeming a code does not require creating an account or providing personal information to us.</p>
 
-<h2>4. Children's Privacy</h2>
-<p>Puppy Academy is designed to be family-friendly. We do not knowingly collect personal information (name, email, precise location, photos, etc.) from any player, including children. The App contains no chat, messaging, or other feature that would let players communicate with strangers, and it does not show behavioral/targeted advertising.</p>
+<h2 data-ru="4. Конфиденциальность детей" data-en="4. Children's Privacy">4. Children's Privacy</h2>
+<p data-ru="«Школа послушания» создана как семейное приложение. Мы сознательно не собираем личную информацию (имя, email, точное местоположение, фотографии и т.д.) ни от одного игрока, включая детей. В Приложении нет чата, сообщений или других функций, позволяющих игрокам общаться с незнакомцами, и оно не показывает поведенческую/таргетированную рекламу." data-en="We do not knowingly collect personal information (name, email, precise location, photos, etc.) from any player, including children. The App contains no chat, messaging, or other feature that would let players communicate with strangers, and it does not show behavioral/targeted advertising.">We do not knowingly collect personal information (name, email, precise location, photos, etc.) from any player, including children. The App contains no chat, messaging, or other feature that would let players communicate with strangers, and it does not show behavioral/targeted advertising.</p>
 
-<h2>5. Notifications</h2>
-<p>If you allow it, the App can show local reminders (for example, when your pet's rest timer finishes) directly from your device. These reminders are generated and scheduled entirely on your own device — no reminder content is sent to or generated by our servers.</p>
+<h2 data-ru="5. Уведомления" data-en="5. Notifications">5. Notifications</h2>
+<p data-ru="Если вы разрешите, Приложение может показывать локальные напоминания (например, когда закончился таймер отдыха питомца) прямо с вашего устройства. Эти напоминания создаются и планируются полностью на вашем устройстве — содержимое напоминаний не отправляется на наши серверы и не генерируется ими." data-en="If you allow it, the App can show local reminders (for example, when your pet's rest timer finishes) directly from your device. These reminders are generated and scheduled entirely on your own device — no reminder content is sent to or generated by our servers.">If you allow it, the App can show local reminders (for example, when your pet's rest timer finishes) directly from your device. These reminders are generated and scheduled entirely on your own device — no reminder content is sent to or generated by our servers.</p>
 
-<h2>6. Contact</h2>
-<p>If you have questions about this Privacy Policy, or wish to report a concern, contact us at <a href="mailto:info@puppysacademy.com">info@puppysacademy.com</a>.</p>
+<h2 data-ru="6. Контакты" data-en="6. Contact">6. Contact</h2>
+<p data-ru='По вопросам об этой Политике конфиденциальности или чтобы сообщить о проблеме, пишите на <a href="mailto:info@puppysacademy.com">info@puppysacademy.com</a>.' data-en='If you have questions about this Privacy Policy, or wish to report a concern, contact us at <a href="mailto:info@puppysacademy.com">info@puppysacademy.com</a>.'>If you have questions about this Privacy Policy, or wish to report a concern, contact us at <a href="mailto:info@puppysacademy.com">info@puppysacademy.com</a>.</p>
 
-<h2>7. Changes to This Policy</h2>
-<p>We may update this Privacy Policy as the App changes — for example, if we add optional analytics in the future, this page will be updated first to describe exactly what is collected. The "Last updated" date above reflects the most recent revision.</p>
+<h2 data-ru="7. Изменения политики" data-en="7. Changes to This Policy">7. Changes to This Policy</h2>
+<p data-ru='Мы можем обновлять эту Политику конфиденциальности по мере изменения Приложения — например, если в будущем добавим необязательную аналитику, эта страница будет обновлена заранее с точным описанием того, что собирается. Дата "Обновлено" выше отражает последнюю редакцию.' data-en='We may update this Privacy Policy as the App changes — for example, if we add optional analytics in the future, this page will be updated first to describe exactly what is collected. The "Last updated" date above reflects the most recent revision.'>We may update this Privacy Policy as the App changes — for example, if we add optional analytics in the future, this page will be updated first to describe exactly what is collected. The "Last updated" date above reflects the most recent revision.</p>
+
+<script>
+function setLang(lang) {
+  document.querySelectorAll('[data-' + lang + ']').forEach(function(el) {
+    el.innerHTML = el.getAttribute('data-' + lang);
+  });
+  document.getElementById('btn-ru').classList.toggle('active', lang === 'ru');
+  document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+  document.documentElement.lang = lang;
+  localStorage.setItem('pa_legal_lang', lang);
+}
+(function() {
+  var saved = localStorage.getItem('pa_legal_lang');
+  if (saved === 'ru') setLang('ru');
+})();
+</script>
 
 </body>
 </html>

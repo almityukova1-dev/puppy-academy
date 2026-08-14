@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Refund Policy — Puppy Academy</title>
+<title data-ru="Политика возврата — Школа послушания" data-en="Refund Policy — Puppy Academy">Refund Policy — Puppy Academy</title>
 <style>
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -13,6 +13,43 @@
     line-height: 1.6;
     color: #2b2318;
     background: #fffaf0;
+  }
+  .lang-switch {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    display: flex;
+    gap: 4px;
+    background: #fff;
+    border-radius: 10px;
+    padding: 4px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+  }
+  .lang-switch button {
+    border: none;
+    background: transparent;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    color: #6b5a45;
+  }
+  .lang-switch button.active {
+    background: #8cc7a1;
+    color: #fff;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .brand img { width: 40px; height: 45px; object-fit: contain; }
+  .brand span {
+    font-weight: 800;
+    font-size: 20px;
+    color: #6b4a2b;
   }
   h1 {
     color: #6b4a2b;
@@ -33,27 +70,53 @@
 </head>
 <body>
 
-<h1>Refund Policy — Puppy Academy</h1>
-<p class="updated">Last updated: August 14, 2026</p>
+<div class="lang-switch">
+  <button id="btn-en" class="active" onclick="setLang('en')">EN</button>
+  <button id="btn-ru" onclick="setLang('ru')">РУ</button>
+</div>
 
-<p>This Refund Policy applies to purchases of virtual currency ("Timer Skips") made through Puppy Academy.</p>
+<div class="brand">
+  <img src="/assets/logo.png" alt="Puppy Academy logo">
+  <span data-ru="Школа послушания" data-en="Puppy Academy">Puppy Academy</span>
+</div>
 
-<h2>All Sales Are Final</h2>
-<p>Timer Skip packs are digital virtual currency delivered instantly via a one-time redemption code after payment. Because the purchase is fulfilled immediately and cannot be "returned," <strong>we do not offer refunds</strong> for completed purchases, including in cases of accidental purchase or a change of mind.</p>
+<h1 data-ru="Политика возврата — Школа послушания" data-en="Refund Policy — Puppy Academy">Refund Policy — Puppy Academy</h1>
+<p class="updated" data-ru="Обновлено: 14 августа 2026" data-en="Last updated: August 14, 2026">Last updated: August 14, 2026</p>
 
-<h2>Exceptions</h2>
-<p>We will consider a refund only in the following situations:</p>
+<p data-ru='Эта Политика возврата применяется к покупкам внутриигровой валюты ("Скипы таймера") через «Школа послушания».' data-en='This Refund Policy applies to purchases of virtual currency ("Timer Skips") made through Puppy Academy.'>This Refund Policy applies to purchases of virtual currency ("Timer Skips") made through Puppy Academy.</p>
+
+<h2 data-ru="Все продажи окончательны" data-en="All Sales Are Final">All Sales Are Final</h2>
+<p data-ru="Наборы скипов таймера — это цифровая внутриигровая валюта, доставляемая мгновенно через одноразовый код после оплаты. Поскольку покупка исполняется немедленно и не может быть «возвращена», мы <strong>не производим возврат средств</strong> за завершённые покупки, включая случаи случайной покупки или передумали." data-en='Timer Skip packs are digital virtual currency delivered instantly via a one-time redemption code after payment. Because the purchase is fulfilled immediately and cannot be "returned," <strong>we do not offer refunds</strong> for completed purchases, including in cases of accidental purchase or a change of mind.'>Timer Skip packs are digital virtual currency delivered instantly via a one-time redemption code after payment. Because the purchase is fulfilled immediately and cannot be "returned," <strong>we do not offer refunds</strong> for completed purchases, including in cases of accidental purchase or a change of mind.</p>
+
+<h2 data-ru="Исключения" data-en="Exceptions">Exceptions</h2>
+<p data-ru="Мы рассмотрим возврат только в следующих случаях:" data-en="We will consider a refund only in the following situations:">We will consider a refund only in the following situations:</p>
 <ul>
-  <li>You were charged but never received a valid redemption code due to a technical error on our side.</li>
-  <li>A duplicate charge occurred for the same purchase.</li>
-  <li>Applicable consumer protection law in your country grants you a mandatory refund right that cannot be waived.</li>
+  <li data-ru="С вас списали деньги, но вы так и не получили действующий код из-за технической ошибки с нашей стороны." data-en="You were charged but never received a valid redemption code due to a technical error on our side.">You were charged but never received a valid redemption code due to a technical error on our side.</li>
+  <li data-ru="Произошло повторное списание за одну и ту же покупку." data-en="A duplicate charge occurred for the same purchase.">A duplicate charge occurred for the same purchase.</li>
+  <li data-ru="Применимое законодательство о защите прав потребителей в вашей стране предоставляет обязательное право на возврат, от которого нельзя отказаться." data-en="Applicable consumer protection law in your country grants you a mandatory refund right that cannot be waived.">Applicable consumer protection law in your country grants you a mandatory refund right that cannot be waived.</li>
 </ul>
 
-<h2>How to Request a Review</h2>
-<p>If you believe your situation falls under one of the exceptions above, contact us at <a href="mailto:info@puppysacademy.com">info@puppysacademy.com</a> with your order details, and we will review your request.</p>
+<h2 data-ru="Как подать запрос" data-en="How to Request a Review">How to Request a Review</h2>
+<p data-ru='Если вы считаете, что ваша ситуация подпадает под одно из исключений выше, напишите нам на <a href="mailto:info@puppysacademy.com">info@puppysacademy.com</a>, указав детали заказа, и мы рассмотрим ваш запрос.' data-en='If you believe your situation falls under one of the exceptions above, contact us at <a href="mailto:info@puppysacademy.com">info@puppysacademy.com</a> with your order details, and we will review your request.'>If you believe your situation falls under one of the exceptions above, contact us at <a href="mailto:info@puppysacademy.com">info@puppysacademy.com</a> with your order details, and we will review your request.</p>
 
-<h2>Payment Provider</h2>
-<p>Purchases are processed by our payment provider, Paddle, acting as the merchant of record. Paddle's own refund and dispute-handling policies may also apply to your transaction.</p>
+<h2 data-ru="Платёжный провайдер" data-en="Payment Provider">Payment Provider</h2>
+<p data-ru="Покупки обрабатываются нашим платёжным провайдером Paddle, выступающим в роли продавца-по-договору (merchant of record). К вашей транзакции также могут применяться собственные политики Paddle по возвратам и спорным платежам." data-en="Purchases are processed by our payment provider, Paddle, acting as the merchant of record. Paddle's own refund and dispute-handling policies may also apply to your transaction.">Purchases are processed by our payment provider, Paddle, acting as the merchant of record. Paddle's own refund and dispute-handling policies may also apply to your transaction.</p>
+
+<script>
+function setLang(lang) {
+  document.querySelectorAll('[data-' + lang + ']').forEach(function(el) {
+    el.innerHTML = el.getAttribute('data-' + lang);
+  });
+  document.getElementById('btn-ru').classList.toggle('active', lang === 'ru');
+  document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+  document.documentElement.lang = lang;
+  localStorage.setItem('pa_legal_lang', lang);
+}
+(function() {
+  var saved = localStorage.getItem('pa_legal_lang');
+  if (saved === 'ru') setLang('ru');
+})();
+</script>
 
 </body>
 </html>
