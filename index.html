@@ -1006,8 +1006,11 @@ footer {
       </div>
       <div class="page-placeholder">
         <div data-i18n="roadmap_placeholder_1">Здесь скоро появится план обновлений игры — что уже готово и что в работе.</div>
+        <div data-i18n-html="roadmap_item3"><s>3. Разработка возможности пропустить таймер ожидания выполнения действия — в процессе</s> <span style="color: var(--mint-deep); font-weight: 800;">&#10003;</span></div>
+        <div data-i18n="roadmap_item4">4. Разработка полного списка команд с тренировочным функционалом — в процессе (более 30 команд)</div>
         <div><span data-i18n="roadmap_item5_pre">5. Разработка добавления новой породы в игру — в процессе, </span><a href="https://www.instagram.com/s/aGlnaGxpZ2h0OjE4MDIxMjg3NDQxODU1Nzg2?story_media_id=3958028709653501882&igsh=YzQ0ZjdpbWYwOW52" target="_blank" rel="noopener" data-i18n="roadmap_item5_link">проголосуйте, какая порода следующая</a></div>
-        <div data-i18n="roadmap_placeholder_2"></div>
+        <div data-i18n-html="roadmap_item6"><s>6. Разработка системы наград — в процессе</s> <span style="color: var(--mint-deep); font-weight: 800;">&#10003;</span></div>
+        <div data-i18n-html="roadmap_item7"><s>7. Озвучка книги — в процессе</s> <span style="color: var(--mint-deep); font-weight: 800;">&#10003;</span></div>
       </div>
     </div>
   </section>
@@ -1155,10 +1158,13 @@ iOS:
 
       roadmap_title: "План обновлений",
       roadmap_eyebrow: "Что дальше",
-      roadmap_placeholder_1: "1. Разработка анимации грустного и плачущего щенка — в процессе\n2. Разработка новых анимаций для взрослого бигля — в процессе (пока работают анимации щенка до седьмого месяца)\n3. Разработка возможности пропустить таймер ожидания выполнения действия — в процессе\n4. Разработка полного списка команд с тренировочным функционалом — в процессе (более 30 команд)",
+      roadmap_placeholder_1: "1. Разработка анимации грустного и плачущего щенка — в процессе\n2. Разработка новых анимаций для взрослого бигля — в процессе (пока работают анимации щенка до седьмого месяца)",
+      roadmap_item3: "<s>3. Разработка возможности пропустить таймер ожидания выполнения действия — в процессе</s> <span style=\"color: var(--mint-deep); font-weight: 800;\">&#10003;</span>",
+      roadmap_item4: "4. Разработка полного списка команд с тренировочным функционалом — в процессе (более 30 команд)",
       roadmap_item5_pre: "5. Разработка добавления новой породы в игру — в процессе, ",
       roadmap_item5_link: "проголосуйте, какая порода следующая",
-      roadmap_placeholder_2: "6. Разработка системы наград — в процессе\n7. Озвучка книги — в процессе",
+      roadmap_item6: "<s>6. Разработка системы наград — в процессе</s> <span style=\"color: var(--mint-deep); font-weight: 800;\">&#10003;</span>",
+      roadmap_item7: "<s>7. Озвучка книги — в процессе</s> <span style=\"color: var(--mint-deep); font-weight: 800;\">&#10003;</span>",
 
       report_bug_title: "Сообщить об ошибке",
       report_bug_eyebrow: "Нашли баг?",
@@ -1226,10 +1232,13 @@ iOS:
 
       roadmap_title: "Roadmap",
       roadmap_eyebrow: "What's next",
-      roadmap_placeholder_1: "1. Sad and crying puppy animation — in development\n2. New adult beagle animations — in development (puppy animations currently work up to 7 months old)\n3. Ability to skip the action wait timer — in development\n4. Full command list with training functionality — in development (30+ commands)",
+      roadmap_placeholder_1: "1. Sad and crying puppy animation — in development\n2. New adult beagle animations — in development (puppy animations currently work up to 7 months old)",
+      roadmap_item3: "<s>3. Ability to skip the action wait timer — in development</s> <span style=\"color: var(--mint-deep); font-weight: 800;\">&#10003;</span>",
+      roadmap_item4: "4. Full command list with training functionality — in development (30+ commands)",
       roadmap_item5_pre: "5. Adding a new breed to the game — in development, ",
       roadmap_item5_link: "vote on which breed comes next",
-      roadmap_placeholder_2: "6. Rewards system — in development\n7. Audiobook narration — in development",
+      roadmap_item6: "<s>6. Rewards system — in development</s> <span style=\"color: var(--mint-deep); font-weight: 800;\">&#10003;</span>",
+      roadmap_item7: "<s>7. Audiobook narration — in development</s> <span style=\"color: var(--mint-deep); font-weight: 800;\">&#10003;</span>",
 
       report_bug_title: "Report a bug",
       report_bug_eyebrow: "Found something broken?",
@@ -1275,6 +1284,14 @@ iOS:
     document.querySelectorAll("[data-i18n]").forEach(function (el) {
       var key = el.getAttribute("data-i18n");
       if (dict[key] !== undefined) el.textContent = dict[key];
+    });
+    // HTML variant, only for a handful of hand-authored roadmap lines that
+    // need real markup (done-item strikethrough + checkmark) -- every other
+    // data-i18n element above stays on textContent (safe against anything
+    // ever ending up in the dictionary that isn't meant to be raw HTML).
+    document.querySelectorAll("[data-i18n-html]").forEach(function (el) {
+      var key = el.getAttribute("data-i18n-html");
+      if (dict[key] !== undefined) el.innerHTML = dict[key];
     });
     document.querySelectorAll("[data-i18n-placeholder]").forEach(function (el) {
       var key = el.getAttribute("data-i18n-placeholder");
